@@ -6,11 +6,10 @@
 #include "../misc/split_lines.c"
 #include "../misc/trim.c"
 
-int install(char *package)
-{
+int install(char *package) {
     FILE *repro = fopen("/etc/repro.car", "r");
     if (repro == NULL) {
-        log_error("car not initialized");
+    log_error("car not initialized");
     }
 
     fseek(repro, 0, SEEK_END);
@@ -19,8 +18,8 @@ int install(char *package)
 
     char *text = malloc(file_size + 1);
     if (!text) {
-        fclose(repro);
-        return -1;
+    fclose(repro);
+    return -1;
     }
 
     fread(text, 1, file_size, repro);
@@ -33,19 +32,19 @@ int install(char *package)
     free(text);
 
     for (int i = 0; i < line_count; i++) {
-        char *eq_pos = strchr(lines[i], '=');
-        if (eq_pos) {
-            *eq_pos = '\0'; // split the string at '='
-            if (strcmp(lines[i], package) == 0) {
-                log_warning("package already installed");
-                found = 1;
-                break;
-            }
+    char *eq_pos = strchr(lines[i], '=');
+    if (eq_pos) {
+        *eq_pos = '\0'; // split the string at '='
+        if (strcmp(lines[i], package) == 0) {
+            log_warning("package already installed");
+            found = 1;
+            break;
         }
+    }
     }
 
     for (int i = 0; i < line_count; i++) {
-        free(lines[i]);
+    free(lines[i]);
     }
     free(lines);
 
@@ -59,18 +58,18 @@ int install(char *package)
         unpack_command,
         sizeof(unpack_command),
         "tar --zstd --directory=/tmp/car --strip-components=1 -xf %s",
-        package
+    package
     );
 
     if (system(unpack_command) != 0) {
-        log_error("failed to unpack package");
-        return 1;
+    log_error("failed to unpack package");
+    return 1;
     }
 
     FILE *script = fopen("/tmp/car/car", "r");
     if (script == NULL) {
-      log_error("package does not contain manifest");
-      return 127;
+    log_error("package does not contain manifest");
+    return 127;
     }
     fseek(script, 0, SEEK_END);
     long script_size = ftell(script);
@@ -88,15 +87,15 @@ int install(char *package)
     char version[64] = "unknown";
 
     for (int i = 0; i < script_line_count; i++) {
-        char *space = strchr(script_lines[i], ' ');
-        if (!space) continue;
+    char *space = strchr(script_lines[i], ' ');
+    if (!space) continue;
 
-        *space = '\0';
-        char *value = trim(space + 1);
+    *space = '\0';
+    char *value = trim(space + 1);
 
-        if (strcmp(script_lines[i], "version") == 0) {
-            snprintf(version, sizeof(version), "%s", value);
-        }
+    if (strcmp(script_lines[i], "version") == 0) {
+        snprintf(version, sizeof(version), "%s", value);
+    }
     }
 
     for (int i = 0; i < script_line_count; i++) free(script_lines[i]);
@@ -107,18 +106,18 @@ int install(char *package)
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     double elapsed =
-        (end.tv_sec - start.tv_sec) +
-        (end.tv_nsec - start.tv_nsec) / 1e9;
+    (end.tv_sec - start.tv_sec) +
+    (end.tv_nsec - start.tv_nsec) / 1e9;
 
     char msg[150];
-    snprintf(
-        msg,
-        sizeof(msg),
-        "installed %s-%s in %f seconds",
-        package,
-        version,
-        elapsed
-    );
+
+    if (elapsed >= 1.0) {
+    // Show seconds with 2 decimal places
+    snprintf(msg, sizeof(msg), "installed %s (%s) in %.2f seconds", package, version, elapsed);
+    } else {
+    // Show milliseconds
+    snprintf(msg, sizeof(msg), "installed %s (%s) in %.0f ms", package, version, elapsed * 1000);
+    }
 
     log_ok(msg);
     return 0;
