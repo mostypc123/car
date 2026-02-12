@@ -17,6 +17,6 @@ void log_done(char *message) {
 }
 
 void log_info(char *message) {
-  printf("\033[1m\033[94minfo\033[0m: %s\n", message);
+  printf("\033[1m\033[94minfo\033[0m: %s", message);
 }
 

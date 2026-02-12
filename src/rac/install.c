@@ -6,7 +6,11 @@
 #include "../misc/split_lines.c"
 #include "../misc/trim.c"
 
-int install(char *package) {
+int install(char *package, char* alias) {
+    if (alias == NULL) {
+        snprintf(alias, sizeof(alias), "%s", package);
+    }
+
     FILE *repro = fopen("/etc/repro.car", "r");
     if (repro == NULL) {
     log_error("car not initialized");
@@ -36,7 +40,7 @@ int install(char *package) {
     if (eq_pos) {
         *eq_pos = '\0'; // split the string at '='
         if (strcmp(lines[i], package) == 0) {
-            log_warning("package already installed");
+            log_warning("package already installed. reinstalling");
             found = 1;
             break;
         }
@@ -102,6 +106,7 @@ int install(char *package) {
     free(script_lines);
 
     system("cp -a /tmp/car/. /"); 
+    remove("/car");
 
     clock_gettime(CLOCK_MONOTONIC, &end);
 
@@ -112,11 +117,11 @@ int install(char *package) {
     char msg[150];
 
     if (elapsed >= 1.0) {
-    // Show seconds with 2 decimal places
-    snprintf(msg, sizeof(msg), "installed %s (%s) in %.2f seconds", package, version, elapsed);
+      // Show seconds with 2 decimal places
+      snprintf(msg, sizeof(msg), "installed %s (%s) in %.2f seconds", alias, version, elapsed);
     } else {
-    // Show milliseconds
-    snprintf(msg, sizeof(msg), "installed %s (%s) in %.0f ms", package, version, elapsed * 1000);
+      // Show milliseconds
+      snprintf(msg, sizeof(msg), "installed %s (%s) in %.0f ms", alias, version, elapsed * 1000);
     }
 
     log_ok(msg);
