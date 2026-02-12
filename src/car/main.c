@@ -79,10 +79,13 @@ int main(int argc, char **argv) {
         }
 
         if (next_line) {
+            log_info("downloading package");
+            fflush(stdout);
             char command[512];
             snprintf(command, sizeof(command), "curl -s -L -o /tmp/car.tar.zst %s", next_line);
-            log_info("downloading package");
             system(command);
+            fputs("\r\033[K", stdout);
+            fflush(stdout);
             free(next_line);
         } else {
             log_error("package not found");
@@ -92,10 +95,9 @@ int main(int argc, char **argv) {
         for (int i = 0; i < linecount; i++) free(lines[i]);
         free(lines);
         free(buffer);
-
-        install("/tmp/car.tar.zst");
+        install("/tmp/car.tar.zst", argv[i]);
       } else {
-        install(argv[i]);
+        install(argv[i], NULL);
       }
     }
     char msg[100];
