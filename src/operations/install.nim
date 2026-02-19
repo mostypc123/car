@@ -25,6 +25,13 @@ proc install_backend(file: string, displayName: string) =
   packages_config.writeLine(displayName & "=" & version)
   packages_config.close()
 
+  discard execShellCmd(
+    "mkdir -p /etc/car/saves && " &
+    "rm -f /car && " &
+    "tar --zstd -tf " & file &
+    " | sed 's|^[^/]*/||' | grep -v '/$' > /etc/car/saves/" & displayName
+  )
+
   log_ok("installed " & file.stripSuffix(".tar.zst") & " (" & version & ") successfully")
 
 proc install*(packages: seq[string]) =

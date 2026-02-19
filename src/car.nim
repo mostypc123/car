@@ -2,9 +2,10 @@ import os
 import color
 import posix
 
-import operations.init
-import operations.listup
-import operations.install
+import operations/init
+import operations/listup
+import operations/install
+import operations/delete
 
 var initMode = false
 
@@ -21,6 +22,10 @@ proc usage() =
   log_info("F --force         Force initialization when already initialized")
   log_info("  listup          Update list of packages")
   log_info("  install         Install packages")
+  log_info("  delete          Delete packages")
+  log_info("")
+  log_info("License: GPLv3-only")
+  log_info("Authors: Juraj Kollár <mostypc7@gmail.com>")
 
 when isMainModule:
   var args = commandLineParams()
@@ -51,6 +56,15 @@ when isMainModule:
         isRoot()
         let installArgs = args[(i+1)..^1]
         install(installArgs)
+        quit()
+      elif arg == "delete":
+        if args.len < 2:
+          log_error("missing package name")
+          usage()
+          quit()
+        isRoot()
+        let deleteArgs = args[(i+1)..^1]
+        delete(deleteArgs)
         quit()
       elif arg in ["--force"]:
         continue
