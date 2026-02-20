@@ -6,6 +6,7 @@ import operations/init
 import operations/listup
 import operations/install
 import operations/delete
+import operations/update
 
 var initMode = false
 
@@ -23,6 +24,7 @@ proc usage() =
   log_info("  listup          update list of packages")
   log_info("  install         install packages")
   log_info("  delete          delete packages")
+  log_info("  update          update packages")
   log_info("")
   log_info("License: GPLv3-only")
   log_info("Authors: Juraj Kollár <mostypc7@gmail.com>")
@@ -45,9 +47,12 @@ when isMainModule:
           init(true)
         else:
           init(false)
+      elif arg == "update":
+        isRoot()
+        update()
       elif arg == "listup":
         isRoot()
-        listup()
+        discard listup()
       elif arg in ["install", "get", "i"]:
         if args.len < 2:
           log_error("missing package name")

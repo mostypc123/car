@@ -24,7 +24,7 @@ proc createConfig() =
     log_warn("using default mirror")
   writeFile("/etc/car/mirror", mirrors[parseInt(mirror) - 1])
   writeFile("/etc/car/packagelist", "")
-  listup()
+  discard listup()
 
 proc init*(force: bool) =
   log_info("creating car configs")

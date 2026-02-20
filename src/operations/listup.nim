@@ -1,7 +1,7 @@
 import os
 import ../color
 
-proc listup*() =
+proc listup*(): int =
   log_info("updating package list")
   var mirror = ""
   try:
@@ -15,4 +15,4 @@ proc listup*() =
     quit()
   else:
     log_ok("package list updated")
-    quit() # i have no clue why didnt this quit by itself
+    return 0
